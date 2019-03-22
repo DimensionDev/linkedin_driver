@@ -11,7 +11,9 @@ def _login(
         profile='default',
         recreate_profile=False,
         headless=False,
-        proxies='default'):
+        proxies='default',
+        drive=None,
+        refresh=False):
     '''
     Accepts: username/password.
     Returns: driver with logged-in state.
@@ -22,7 +24,9 @@ def _login(
     1. LinkedIn asks to verify e-mail address if it sees too often log-ins.
     2. LinkedIn asks to enter phone number
     '''
-    if proxies is not None:
+    if drive is not None:
+        driver = drive
+    elif proxies is not None:
         driver = get_driver(profile=profile, recreate_profile=recreate_profile, proxies=proxies, headless=headless)
     else:
         driver = get_driver(profile=profile, recreate_profile=recreate_profile, headless=headless)
@@ -37,7 +41,7 @@ def _login(
     if not (username and password):
         credential = metadrive.utils.get_or_ask_credentials(
             namespace='linkedin',
-            variables=['username', 'password'], ask_refresh=True)
+            variables=['username', 'password'], ask_refresh=refresh)
 
         username = credential['username']
         password = credential['password']

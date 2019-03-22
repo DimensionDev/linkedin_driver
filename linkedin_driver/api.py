@@ -142,6 +142,8 @@ class Post(Dict):
 
         driver = cls._DRIVES[0]
 
+        driver.get(__site_url__)
+
         while True:
 
             # click all "show more" links
