@@ -21,7 +21,8 @@ from linkedin_driver.utils import (
     personal_info,
     experiences,
     skills,
-    recommendations
+    recommendations,
+    get_people_viewed
 )
 
 from linkedin_driver.utils import (
@@ -93,10 +94,14 @@ class Contact(Dict):
         skills_data = skills(soup)
         record.update({'skills': skills_data})
 
+        # People_who_reviewed
+        reviewed = get_people_viewed(driver)
+        record.update({'people_reviewed':reviewed})
+
         # END
         driver.quit()
 
-        return cls(record)
+        # return cls(record)
 
 
     def send_message(self):
