@@ -50,8 +50,8 @@ class Contact(Dict):
                 cls._DRIVES.append(drive)
             else:
                 cls._DRIVES.append(_login())
-        else:
-            driver = cls._DRIVES[0]
+
+        driver = cls._DRIVES[0]
 
         for item in filter_contacts(driver, keyword):
             yield(cls(item))
@@ -67,8 +67,8 @@ class Contact(Dict):
                 cls._DRIVES.append(drive)
             else:
                 cls._DRIVES.append(_login())
-        else:
-            driver = cls._DRIVES[0]
+
+        driver = cls._DRIVES[0]
 
         record = {}
 
@@ -121,13 +121,14 @@ class Post(Dict):
 
     @classmethod
     def _get(self, url, drive=None):
+
         if not cls._DRIVES:
             if drive is not None:
                 cls._DRIVES.append(drive)
             else:
                 cls._DRIVES.append(_login())
-        else:
-            driver = cls._DRIVES[0]
+
+        driver = cls._DRIVES[0]
 
         driver.get(url)
 
