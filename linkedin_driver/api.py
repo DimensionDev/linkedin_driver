@@ -121,25 +121,13 @@ class Post(Dict):
 
     @classmethod
     def _get(cls, url, drive=None):
-
-        if not cls._DRIVES:
-            if drive is not None:
-                cls._DRIVES.append(drive)
-            else:
-                cls._DRIVES.append(_login())
-
-        driver = cls._DRIVES[0]
-
         driver.get(url)
+        # extracted data
+        record = {}
+        return cls(record)
 
     @classmethod
-    def _filter(cls, drive=None, limit=None, close_after_execution=True):
-
-        if not cls._DRIVES:
-            if drive is not None:
-                cls._DRIVES.append(drive)
-            else:
-                cls._DRIVES.append(_login())
+    def _filter(cls, drive, limit=None, close_after_execution=True):
 
         driver = cls._DRIVES[0]
 
