@@ -121,7 +121,7 @@ class Post(Dict):
 
     @classmethod
     def _get(cls, url, drive=None):
-        driver.get(url)
+        drive.get(url)
         # extracted data
         record = {}
         return cls(record)
@@ -129,7 +129,7 @@ class Post(Dict):
     @classmethod
     def _filter(cls, drive, limit=None, close_after_execution=True):
 
-        driver = cls._DRIVES[0]
+        driver = drive
 
         driver.get(__site_url__)
 
