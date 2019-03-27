@@ -56,8 +56,8 @@ class Contact(Dict):
         for item in filter_contacts(driver, keyword):
             yield(cls(item))
 
-        driver.quit()
-        raise NotImplemented
+        # driver.quit()
+        # raise NotImplemented
 
     @classmethod
     def _get(cls, url, drive=None):
@@ -107,9 +107,9 @@ class Contact(Dict):
         skills_data = skills(soup)
         record.update({'skills': skills_data})
 
-        # END
-        driver.quit()
-
+        # # END
+        # driver.quit()
+        #
         return cls(record)
 
 
