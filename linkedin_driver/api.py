@@ -292,10 +292,10 @@ class Post(Dict):
     def _update(self):
         raise NotImplemented
 
-    def add_comment(self, text):
-        field = self.driver.find_element_by_class_name('mentions-texteditor__contenteditable')
+    def add_comment(self, drive, text):
+        field = drive.find_element_by_class_name('mentions-texteditor__contenteditable')
         field.send_keys(text)
-        button = self.driver.find_element_by_class_name('comments-comment-box__submit-button')
+        button = drive.find_element_by_class_name('comments-comment-box__submit-button')
         button.click()
 
 
