@@ -40,18 +40,12 @@ import requests
 class Contact(Dict):
 
     @classmethod
-    def _filter(cls, keyword=None, drive=None):
+    def _filter(cls, drive, keyword=None):
         '''
         Returns:
             Iterator.
         '''
-        if not cls._DRIVES:
-            if drive is not None:
-                cls._DRIVES.append(drive)
-            else:
-                cls._DRIVES.append(_login())
-
-        driver = cls._DRIVES[0]
+        driver = drive
 
         for item in filter_contacts(driver, keyword):
             yield(cls(item))
@@ -60,15 +54,9 @@ class Contact(Dict):
         # raise NotImplemented
 
     @classmethod
-    def _get(cls, url, drive=None):
+    def _get(cls, url, drive):
 
-        if not cls._DRIVES:
-            if drive is not None:
-                cls._DRIVES.append(drive)
-            else:
-                cls._DRIVES.append(_login())
-
-        driver = cls._DRIVES[0]
+        driver = drive
 
         record = {}
 
