@@ -120,7 +120,7 @@ class Contact(Dict):
 class Post(Dict):
 
     @classmethod
-    def _get(self, url, drive=None):
+    def _get(cls, url, drive=None):
 
         if not cls._DRIVES:
             if drive is not None:
