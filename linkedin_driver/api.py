@@ -21,7 +21,8 @@ from linkedin_driver.utils import (
     personal_info,
     experiences,
     skills,
-    recommendations
+    recommendations,
+    get_people_viewed
 )
 
 from linkedin_driver.utils import (
@@ -95,6 +96,10 @@ class Contact(Dict):
         skills_data = skills(soup)
         record.update({'skills': skills_data})
 
+        # People_who_viewed
+        viewed = get_people_viewed(driver)
+        record.update({'people_viewed':viewed})
+
         # # END
         # driver.quit()
         #
@@ -103,6 +108,13 @@ class Contact(Dict):
 
     def send_message(self):
         raise NotImplemented
+
+    # def add_comment(self, drive, text):
+    #     field = drive.find_element_by_class_name('mentions-texteditor__contenteditable')
+    #     field.send_keys(text)
+    #     button = drive.find_element_by_class_name('comments-comment-box__submit-button')
+    #     button.click()
+    #
 
 
 class Post(Dict):

@@ -650,3 +650,24 @@ def recommendations(driver):
         classification = ['Received','Given']
         result = zip(classification,recommend)
         return list(result)
+
+def get_people_viewed(driver):
+    viewed = driver.find_elements_by_class_name('pv-browsemap-section__member-container')
+    ActionChains(driver).move_to_element(viewed[0]).perform()
+    if viewed is None:
+        return []
+    else:
+        soup = bs4.BeautifulSoup(driver.page_source,'html.parser')
+        viewed_list = soup.find_all('li',{'class':'pv-browsemap-section__member-container'})
+        viewed_info = []
+        for item in viewed_list:
+            name = item.find('span',{'class':'name actor-name'}).text
+            url = 'https://www.linkedin.com'+item.find('a',{'class':'pv-browsemap-section__member ember-view'})['href']
+            headline = item.find('p',{'class':'browsemap-headline'}).text
+            viewed_info.append({
+                'name': name,
+                'url':url,
+                'headline':headline
+            })
+
+        return viewed_info
