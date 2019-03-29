@@ -154,8 +154,47 @@ def open_contact(driver, contact_url):
     else:
         twitter_url = None
 
+    ph = []
+    phone = contact_soup.find('section',{'class':'pv-contact-info__contact-type ci-phone'})
+    if phone is not None:
+        phone_content = phone.get_text().strip().split('\n')
+        phone_type = phone_content[4].strip()
+        phone_number = phone_content[3].strip()
+        ph.append({'phone_type':phone_type,'phone_number':phone_number})
+       # ph.append(phone_content)
+    else:
+        phone = None
 
-    contact = {"profile_url": profile_url, "websites": websites,'twitter':twitter_url}
+    address = contact_soup.find('section',{'class':'pv-contact-info__contact-type ci-address'})
+    if address is not None:
+        address_content = address.text.strip().split('\n')[3].strip()
+    else:
+        address_content = None
+
+    email = contact_soup.find('section',{'class':'pv-contact-info__contact-type ci-email'})
+    if email is not None:
+        email_address = email.text.strip().split('\n')[3].strip()
+    else:
+        email_address = None
+
+    IM_cont = []
+    IM = contact_soup.find('section',{'class':'pv-contact-info__contact-type ci-ims'})
+    if IM is not None:
+        IM_content = IM.get_text().strip().split('\n')
+        IM_type = IM_content[6].strip().strip()
+        IM_account = IM_content[4].strip()
+        IM_cont.append({'IM_type':IM_type,'IM_account':IM_account})
+       # IM_cont.append(IM_content)
+
+    birthday = contact_soup.find('section',{'class':'pv-contact-info__contact-type ci-birthday'})
+    if birthday is not None:
+        birth = birthday.text.strip().split('\n')[2].strip()
+    else:
+        birth = None
+
+
+    contact = {"profile_url": profile_url, "websites": websites,"twitter":twitter_url,"phone":ph,"address":address_content
+               ,"email":email_address,"IM":IM_cont,"birthday":birth}
 
     close = driver.find_element_by_class_name('artdeco-dismiss')
     ActionChains(driver).move_to_element(close).click().perform()
