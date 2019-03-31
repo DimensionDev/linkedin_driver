@@ -3,7 +3,7 @@ __site_url__ = 'https://www.linkedin.com'
 import bs4
 import metadrive
 
-from metadrive._selenium import get_driver
+from metadrive._selenium import get_drive
 
 def _login(
         username=None,
@@ -27,9 +27,9 @@ def _login(
     if drive is not None:
         driver = drive
     elif proxies is not None:
-        driver = get_driver(profile=profile, recreate_profile=recreate_profile, proxies=proxies, headless=headless)
+        driver = get_drive(profile=profile, recreate_profile=recreate_profile, proxies=proxies, headless=headless)
     else:
-        driver = get_driver(profile=profile, recreate_profile=recreate_profile, headless=headless)
+        driver = get_drive(profile=profile, recreate_profile=recreate_profile, headless=headless)
 
     driver.get(__site_url__)
     soup = bs4.BeautifulSoup(driver.page_source, 'html.parser')
@@ -68,7 +68,7 @@ def _login(
     asks_something = soup.find('h2', {'class': 'headline'})
     if asks_something is not None:
         if asks_something.text == 'Add a phone number':
-            raise Exception('LinkedIn asks for Phone Number, suggest using proxies, for example, just pass get_driver(proxies={"socksProxy": "127.0.0.1:9999"})...')
+            raise Exception('LinkedIn asks for Phone Number, suggest using proxies, for example, just pass get_drive(proxies={"socksProxy": "127.0.0.1:9999"})...')
 
     if soup.find('li', {'id': 'profile-nav-item'}):
         return driver
