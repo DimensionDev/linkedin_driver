@@ -692,10 +692,11 @@ def recommendations(driver):
 
 def get_people_viewed(driver):
     viewed = driver.find_elements_by_class_name('pv-browsemap-section__member-container')
-    ActionChains(driver).move_to_element(viewed[0]).perform()
-    if viewed is None:
+
+    if viewed is None or viewed == []:
         return []
     else:
+        ActionChains(driver).move_to_element(viewed[0]).perform()
         soup = bs4.BeautifulSoup(driver.page_source,'html.parser')
         viewed_list = soup.find_all('li',{'class':'pv-browsemap-section__member-container'})
         viewed_info = []
