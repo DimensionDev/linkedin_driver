@@ -31,14 +31,20 @@ from linkedin_driver.utils import (
 
 from selenium.webdriver.support.wait import WebDriverWait
 
+from selenium.webdriver.common.action_chains import ActionChains
+
 # misc
 import bs4
+import time
 import base64
 import datetime
 import metawiki
 import requests
 
 class Contact(Dict):
+    #
+    # def __init__(self):
+    #     pass
 
     @classmethod
     def _filter(cls, drive, keyword=None):
@@ -55,11 +61,20 @@ class Contact(Dict):
         # raise NotImplemented
 
     @classmethod
-    def _get(cls, url, drive):
+    def _get(cls, url, drive, only_contact=False):
 
         driver = drive
 
         record = {}
+
+        if only_contact:
+            # CONTACT
+            contact_data = open_contact(driver, url)
+            record.update({'contact': contact_data})
+
+           # obj = cls(record)
+           # obj.drive = drive
+           # return obj
 
         # INTERESTS
         interests_data = open_interest(driver, url)
@@ -103,11 +118,13 @@ class Contact(Dict):
         # # END
         # driver.quit()
         #
-        return cls(record)
+       # obj = cls(record)
+       # obj.drive = driver
+       # return obj
 
 
-    def send_message(self):
-        raise NotImplemented
+  #  def send_message(self):
+  #      raise NotImplemented
 
     # def add_comment(self, drive, text):
     #     field = drive.find_element_by_class_name('mentions-texteditor__contenteditable')
@@ -116,6 +133,23 @@ class Contact(Dict):
     #     button.click()
     #
 
+    def send_message(self, text):
+       friend = self['contact']['profile_url'][0]
+
+       self.drive.get(friend)
+       get_friend =  self.drive.find_element_by_class_name('pv-s-profile-actions__label')
+       ActionChains(self.drive).move_to_element(get_friend).perform()
+       time.sleep(1)
+       self.drive.execute_script('arguments[0].click();', get_friend)
+      # friends = drive.find_element_by_class_name('msg-connections-typeahead__added-recipients')
+      # friends.send_keys(friend)
+       field = self.drive.find_element_by_class_name('msg-form__message-texteditor')
+       ActionChains(self.drive).move_to_element(field).send_keys_to_element(field,text).perform()
+       #field = self.drive.execute_script("document.getElementsByClassName('msg-form__message-texteditor').value ='hi';")
+       button = self.drive.find_element_by_class_name('msg-form__send-button')
+       ActionChains(self.drive).move_to_element(button).perform()
+       time.sleep(1)
+       self.drive.execute_script('arguments[0].click();', button)
 
 class Post(Dict):
 
