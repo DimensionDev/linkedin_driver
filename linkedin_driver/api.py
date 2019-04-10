@@ -118,9 +118,9 @@ class Contact(Dict):
         # # END
         # driver.quit()
         #
-       # obj = cls(record)
-       # obj.drive = driver
-       # return obj
+        obj = cls(record)
+        obj.drive = driver
+        return obj
 
 
   #  def send_message(self):
