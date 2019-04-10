@@ -244,10 +244,11 @@ def open_interest(driver, contact_url):
     driver.get(urllib.parse.urljoin(contact_url, 'detail/interests'))
     #driver.get(urllib.parse.urljoin(contact_url, 'detail/interests/companies/'))
 
-    interest_selector = [
-        'a[data-control-name="following_companies"]',
-        'a[data-control-name="following_groups"]',
-        'a[data-control-name="following_schools"]']
+    soup = bs4.BeautifulSoup(driver.page_source, 'html.parser')
+
+    interest_searcher = soup.find_all('a',{'class':'pv-profile-detail__nav-link'})
+
+    interest_selector = driver.find_elements_by_class_name('pv-profile-detail__nav-link')
 
     interests = []
 
@@ -264,9 +265,11 @@ def open_interest(driver, contact_url):
             })
         return box
 
-    for name in interest_selector:
+    classification = []
+    for i in range(len(interest_searcher)):
+        classification.append(interest_searcher[i].text.strip().split('\n')[0])
         try:
-            driver.find_element_by_css_selector(name).click()
+            interest_selector[i].click()
         except:
             pass
 
@@ -290,11 +293,10 @@ def open_interest(driver, contact_url):
                 for item in name_list:
                     item_name = item.find('span',{'class':'pv-entity__summary-title-text'}).text
                     name_set.add(item_name)
-
         except:
             pass
 
-    classification = ['companies','groups','schools']
+   # classification = ['companies','groups','schools']
     result = zip(classification,interests)
 
     close = driver.find_element_by_class_name('artdeco-dismiss')
