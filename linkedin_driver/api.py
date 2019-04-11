@@ -33,6 +33,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium.webdriver.common.action_chains import ActionChains
 
+from selenium.webdriver.common.keys import Keys
 # misc
 import bs4
 import time
@@ -40,6 +41,7 @@ import base64
 import datetime
 import metawiki
 import requests
+
 
 class Contact(Dict):
     #
@@ -146,10 +148,15 @@ class Contact(Dict):
        field = self.drive.find_element_by_class_name('msg-form__message-texteditor')
        ActionChains(self.drive).move_to_element(field).send_keys_to_element(field,text).perform()
        #field = self.drive.execute_script("document.getElementsByClassName('msg-form__message-texteditor').value ='hi';")
-       button = self.drive.find_element_by_class_name('msg-form__send-button')
-       ActionChains(self.drive).move_to_element(button).perform()
-       time.sleep(1)
-       self.drive.execute_script('arguments[0].click();', button)
+       try:
+           self.drive.switch_to.active_element.submit()
+
+       except:
+            button1 = self.drive.find_element_by_class_name('msg-form__send-button')
+            ActionChains(self.drive).move_to_element(button1).perform()
+            time.sleep(1)
+            self.drive.execute_script('arguments[0].click();', button1)
+
 
 class Post(Dict):
 
