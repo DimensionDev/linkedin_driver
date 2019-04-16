@@ -65,9 +65,9 @@ class Contact(Dict):
             contact_data = open_contact(drive, url)
             record.update({'contact': contact_data})
 
-           obj = cls(record)
-           obj.drive = drive
-           return obj
+            obj = cls(record)
+            obj.drive = drive
+            return obj
 
         # INTERESTS
         interests_data = open_interest(drive, url)
