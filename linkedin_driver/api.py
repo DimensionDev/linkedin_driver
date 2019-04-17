@@ -44,9 +44,6 @@ import requests
 
 
 class Contact(Dict):
-    #
-    # def __init__(self):
-    #     pass
 
     @classmethod
     def _filter(cls, drive, keyword=None):
@@ -54,54 +51,48 @@ class Contact(Dict):
         Returns:
             Iterator.
         '''
-        driver = drive
-
-        for item in filter_contacts(driver, keyword):
+        for item in filter_contacts(drive, keyword):
             yield(cls(item))
 
-        # driver.quit()
-        # raise NotImplemented
 
     @classmethod
     def _get(cls, url, drive, only_contact=False):
-
-        driver = drive
 
         record = {}
 
         if only_contact:
             # CONTACT
-            contact_data = open_contact(driver, url)
+            contact_data = open_contact(drive, url)
             record.update({'contact': contact_data})
 
-           # obj = cls(record)
-           # obj.drive = drive
-           # return obj
+            obj = cls(record)
+            obj.drive = drive
+            return obj
 
         # INTERESTS
-        interests_data = open_interest(driver, url)
+        interests_data = open_interest(drive, url)
         record.update({'interests': interests_data})
 
         # CONTACT
-        contact_data = open_contact(driver, url)
+        contact_data = open_contact(drive, url)
         record.update({'contact': contact_data})
 
         # <<SCROLL-DOWN>>
-        scroll_to_bottom(driver, contact_url=url)
+        scroll_to_bottom(drive, contact_url=url)
 
         # ACCOMPLISHMENTS
-        accomplishments_data = open_accomplishments(driver)
+        accomplishments_data = open_accomplishments(drive)
         record.update({'accomplishments': accomplishments_data})
 
         # RECOMMENDATIONS
-        recommendations_data = recommendations(driver)
+        recommendations_data = recommendations(drive)
         record.update({'recommendations':recommendations_data})
 
         # <<EXPAND-TABS>>
-        open_more(driver)
+        open_more(drive)
 
         # PERSONAL-INFO
-        soup = bs4.BeautifulSoup(driver.page_source, 'html.parser')
+        soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
         personal_info_data = personal_info(soup)
         record.update({'personal_info': personal_info_data})
 
@@ -114,26 +105,14 @@ class Contact(Dict):
         record.update({'skills': skills_data})
 
         # People_who_viewed
-        viewed = get_people_viewed(driver)
+        viewed = get_people_viewed(drive)
         record.update({'people_viewed':viewed})
 
-        # # END
-        # driver.quit()
-        #
+        # END
         obj = cls(record)
-        obj.drive = driver
+        obj.drive = drive
         return obj
 
-
-  #  def send_message(self):
-  #      raise NotImplemented
-
-    # def add_comment(self, drive, text):
-    #     field = drive.find_element_by_class_name('mentions-texteditor__contenteditable')
-    #     field.send_keys(text)
-    #     button = drive.find_element_by_class_name('comments-comment-box__submit-button')
-    #     button.click()
-    #
 
     def send_message(self, text):
        friend = self['contact']['profile_url'][0]
@@ -170,21 +149,19 @@ class Post(Dict):
     @classmethod
     def _filter(cls, drive, limit=None, close_after_execution=True):
 
-        driver = drive
-
-        driver.get(__site_url__)
+        drive.get(__site_url__)
 
         while True:
 
             # click all "show more" links
-            eles = driver.find_elements_by_css_selector('.see-more')
+            eles = drive.find_elements_by_css_selector('.see-more')
             for ele in eles:
                 try:
-                    driver.execute_script('arguments[0].click();',ele)
+                    drive.execute_script('arguments[0].click();',ele)
                 except:
                     pass
 
-            soup = bs4.BeautifulSoup(driver.page_source, 'html.parser')
+            soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
             posts_placeholder = soup.find('div', {'class': 'core-rail'})
             posts = posts_placeholder.find_all('div', {'class': 'relative ember-view'})
 
@@ -315,19 +292,19 @@ class Post(Dict):
                     'author_status': author_status,
                     'logged': datetime.datetime.utcnow().isoformat(),
                     '-': url,
-                    '+': metawiki.name_to_url(driver.metaname) if driver.metaname else '',
+                    '+': metawiki.name_to_url(drive.metaname) if drive.metaname else '',
                     '*': metawiki.name_to_url('::mindey/topic#linkedin')
                 }
 
 
                 count += 1
-                yield item
+                yield cls(item)
 
                 if limit:
                     if count >= limit:
                         break
 
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            drive.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
 
     def _update(self):
