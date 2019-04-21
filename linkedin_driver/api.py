@@ -45,6 +45,9 @@ import requests
 
 class Contact(Dict):
 
+    def __init__(self):
+        super().__init__()
+
     @classmethod
     def _filter(cls, drive, keyword=None):
         '''
@@ -138,6 +141,9 @@ class Contact(Dict):
 
 
 class Post(Dict):
+
+    def __init__(self):
+        super().__init__()
 
     @classmethod
     def _get(cls, url, drive=None):
@@ -293,7 +299,7 @@ class Post(Dict):
                     'logged': datetime.datetime.utcnow().isoformat(),
                     '-': url,
                     '+': metawiki.name_to_url(drive.metaname) if drive.metaname else '',
-                    '*': metawiki.name_to_url('::mindey/topic#linkedin')
+                    '*': metawiki.name_to_url('::mindey/topic#linkedin'),
                 }
 
 
@@ -320,6 +326,9 @@ class Post(Dict):
 
 class Message(Dict):
 
+    def __init__(self):
+        super().__init__()
+
     @classmethod
     def _get(self):
         raise NotImplemented
@@ -333,6 +342,9 @@ class Message(Dict):
 
 
 class Comment(Dict):
+
+    def __init__(self):
+        super().__init__()
 
     @classmethod
     def _get(self):
@@ -348,6 +360,9 @@ class Comment(Dict):
 
 class PostLike(dict):
 
+    def __init__(self):
+        super().__init__()
+
     @classmethod
     def _get(self):
         raise NotImplemented
@@ -361,6 +376,9 @@ class PostLike(dict):
 
 
 class CommentLike(Dict):
+
+    def __init__(self):
+        super().__init__()
 
     @classmethod
     def _get(self):
