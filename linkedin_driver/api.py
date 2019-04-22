@@ -45,9 +45,6 @@ import requests
 
 class Contact(Dict):
 
-    def __init__(self):
-        super().__init__()
-
     @classmethod
     def _filter(cls, drive, keyword=None):
         '''
@@ -141,9 +138,6 @@ class Contact(Dict):
 
 
 class Post(Dict):
-
-    def __init__(self):
-        super().__init__()
 
     @classmethod
     def _get(cls, url, drive=None):
@@ -326,9 +320,6 @@ class Post(Dict):
 
 class Message(Dict):
 
-    def __init__(self):
-        super().__init__()
-
     @classmethod
     def _get(self):
         raise NotImplemented
@@ -342,9 +333,6 @@ class Message(Dict):
 
 
 class Comment(Dict):
-
-    def __init__(self):
-        super().__init__()
 
     @classmethod
     def _get(self):
@@ -360,9 +348,6 @@ class Comment(Dict):
 
 class PostLike(dict):
 
-    def __init__(self):
-        super().__init__()
-
     @classmethod
     def _get(self):
         raise NotImplemented
@@ -376,9 +361,6 @@ class PostLike(dict):
 
 
 class CommentLike(Dict):
-
-    def __init__(self):
-        super().__init__()
 
     @classmethod
     def _get(self):
