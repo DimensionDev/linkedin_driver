@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='linkedin_driver',
-    version='0.1.9.4',
+    version='0.1.9.5',
     description='Linkedin driver.',
     url='https://github.com/sujitech/linkedin_driver',
     author='Mindey',
