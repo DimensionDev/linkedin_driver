@@ -52,7 +52,7 @@ class Contact(Dict):
             Iterator.
         '''
         for item in filter_contacts(drive, keyword):
-            item['@'] = drive.profile
+            item['@'] = drive.spec + cls.__name__
             yield(cls(item))
 
 
@@ -60,7 +60,7 @@ class Contact(Dict):
     def _get(cls, url, drive, only_contact=False):
 
         record = {}
-        record['@'] = drive.profile
+        record['@'] = drive.spec + cls.__name__
         record['-'] = url
 
         if only_contact:
@@ -148,7 +148,7 @@ class Post(Dict):
         # extracted data
         record = {}
         if drive is not None:
-            record['@'] = drive.profile
+            record['@'] = drive.spec + cls.__name__
         return cls(record)
 
     @classmethod
@@ -299,7 +299,7 @@ class Post(Dict):
                     '-': url,
                     '+': metawiki.name_to_url(drive.metaname) if drive.metaname else '',
                     '*': metawiki.name_to_url('::mindey/topic#linkedin'),
-                    '@': drive.profile,
+                    '@': drive.spec + cls.__name__
                 }
 
 
