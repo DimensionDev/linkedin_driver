@@ -45,6 +45,8 @@ import requests
 
 class Contact(Dict):
 
+    messages = []
+
     @classmethod
     def _filter(cls, drive, keyword=None):
         '''
@@ -114,7 +116,16 @@ class Contact(Dict):
         return obj
 
 
+#    def get_friend(self):
+#        friend = self['contact']['profile_url'][0]
+#        self.drive.get(friend)
+#        get_friend =  self.drive.find_element_by_class_name('pv-s-profile-actions__label')
+#        ActionChains(self.drive).move_to_element(get_friend).perform()
+#        time.sleep(1)
+#        self.drive.execute_script('arguments[0].click();', get_friend)
+
     def send_message(self, text):
+
        friend = self['contact']['profile_url'][0]
 
        self.drive.get(friend)
@@ -129,12 +140,43 @@ class Contact(Dict):
        #field = self.drive.execute_script("document.getElementsByClassName('msg-form__message-texteditor').value ='hi';")
        try:
            self.drive.switch_to.active_element.submit()
-
        except:
-            button1 = self.drive.find_element_by_class_name('msg-form__send-button')
-            ActionChains(self.drive).move_to_element(button1).perform()
-            time.sleep(1)
-            self.drive.execute_script('arguments[0].click();', button1)
+           button1 = self.drive.find_element_by_class_name('msg-form__send-button')
+           ActionChains(self.drive).move_to_element(button1).perform()
+           time.sleep(1)
+           self.drive.execute_script('arguments[0].click();', button1)
+
+    def get_message(self):
+
+        friend = self['contact']['profile_url'][0]
+        self.drive.get(friend)
+        get_friend = self.drive.find_element_by_class_name('pv-s-profile-actions__label')
+        ActionChains(self.drive).move_to_element(get_friend).perform()
+        time.sleep(1)
+        self.drive.execute_script('arguments[0].click();', get_friend)
+
+        time.sleep(5)
+        temp = None
+        while True:
+            message_list = self.drive.find_elements_by_class_name('msg-s-message-list__event')
+            print(message_list)
+            last_item = message_list[0]
+            if temp == last_item:
+                break
+            temp = last_item
+            self.drive.execute_script("arguments[0].scrollIntoView(true);", last_item);
+            time.sleep(5)
+
+        soup = bs4.BeautifulSoup(self.drive.page_source, 'html.parser')
+        timestamp = soup.find_all('time',{'class':'msg-s-message-list__time-heading'})
+        message_box = soup.find_all('li',{'class':'msg-s-message-list__event clearfix'})
+        print(message_box)
+
+        for message in message_box:
+            context = message.find('p').get_text()
+            self.messages.append(Message({'text': context}))
+
+
 
 
 class Post(Dict):
