@@ -174,7 +174,29 @@ class Post(Dict):
 
             for i, post in enumerate(posts):
 
-                url = 'https://www.linkedin.com/feed/update/'+post.attrs['data-id']
+                # url = 'https://www.linkedin.com/feed/update/'+post.attrs['data-id']
+
+                # skip those which appear empty (e.g., "occludable-update")
+                if not post.text.strip():
+                    print('SKIPPING SOME POST, THAT HAS NO TEXT')
+                    continue
+
+                # data_id not in post.attrs anymore
+                data_id = post.attrs.get('data-id')
+
+                if data_id is None:
+                    v2_id = post.find('div', {'class': 'feed-shared-update-v2'})
+
+                    if v2_id is not None:
+                        data_id = v2_id.attrs.get('data-id')
+
+                # skip if could not retrieve data-id anyway.
+                if data_id is None:
+                    print('SKIPPING SOME POST, THAT HAS NO DATA-ID')
+                    continue
+
+                url = 'https://www.linkedin.com/feed/update/'+data_id
+
 
                 author_status = post.find('div', {'class': 'presence-entity'})
                 if author_status:
