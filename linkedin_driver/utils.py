@@ -338,7 +338,8 @@ def open_accomplishments(driver):
 
     content = []
     for accomp in accomp_expand:
-        ActionChains(driver).move_to_element(accomp).perform()
+       # ActionChains(driver).move_to_element(accomp).perform()
+        driver.execute_script("arguments[0].scrollIntoView(true);", accomp);
         time.sleep(1)
         #accomp.click() # <- not working
         driver.execute_script('arguments[0].click();', accomp)
@@ -377,14 +378,14 @@ def open_accomplishments(driver):
     return list(result)
 
 
-def open_more(driver):
-    eles= driver.find_elements_by_css_selector('.lt-line-clamp__more')
-    for ele in eles:
-        try:
-            driver.execute_script('arguments[0].disabled = true;',ele)
-            driver.execute_script('arguments[0].click();',ele)
-        except:
-            pass
+#def open_more(driver):
+#    eles= driver.find_elements_by_css_selector('.lt-line-clamp__more')
+#    for ele in eles:
+#        try:
+#            driver.execute_script('arguments[0].disabled = true;',ele)
+#            driver.execute_script('arguments[0].click();',ele)
+#        except:
+#            pass
 
 
 
@@ -619,14 +620,20 @@ def recommendations(driver):
         logging.warning('Not found.')
         return []
     else:
-        expand = driver.find_elements_by_class_name('pv-profile-section__see-more-inline')
-        #'show more' btn in the first tab item was clicked in scroll_to_bottom, we only need to click the 'show more' in the other items
+        expand_selector = 'button[aria-controls="recommendation-list"].pv-profile-section__see-more-inline'
+       # expand = driver.find_elements_by_class_name('pv-profile-section__see-more-inline')
+        expand = driver.find_elements_by_css_selector(expand_selector)
+
         for item in tab[1:]:
-            ActionChains(driver).move_to_element(item).perform()
+           # ActionChains(driver).move_to_element(item).perform()
+            driver.execute_script("arguments[0].scrollIntoView(true);", item)
+            time.sleep(1)
             driver.execute_script('arguments[0].click();',item)
             for btn in expand:
                 try:
-                    ActionChains(driver).move_to_element(btn).perform()
+                   # ActionChains(driver).move_to_element(btn).perform()
+                    driver.execute_script("arguments[0].scrollIntoView(true);", btn)
+                    time.sleep(1)
                     driver.execute_script('arguments[0].click();',btn)
                 except:
                     pass
@@ -634,11 +641,15 @@ def recommendations(driver):
         more = driver.find_elements_by_class_name('lt-line-clamp__more')
 
         for item in tab:
-            ActionChains(driver).move_to_element(item).perform()
+           # ActionChains(driver).move_to_element(item).perform()
+            driver.execute_script("arguments[0].scrollIntoView(true);", item)
+            time.sleep(1)
             driver.execute_script('arguments[0].click();',item)
             for btn in more:
                 try:
-                    ActionChains(driver).move_to_element(btn).perform()
+                   # ActionChains(driver).move_to_element(btn).perform()
+                    driver.execute_script("arguments[0].scrollIntoView(true);", btn)
+                    time.sleep(1)
                     driver.execute_script('arguments[0].click();',btn)
                 except:
                     pass
@@ -698,7 +709,9 @@ def get_people_viewed(driver):
     if viewed is None or viewed == []:
         return []
     else:
-        ActionChains(driver).move_to_element(viewed[0]).perform()
+       # ActionChains(driver).move_to_element(viewed[0]).perform()
+        driver.execute_script("arguments[0].scrollIntoView(true);", viewed[0])
+        time.sleep(1)
         soup = bs4.BeautifulSoup(driver.page_source,'html.parser')
         viewed_list = soup.find_all('li',{'class':'pv-browsemap-section__member-container'})
         viewed_info = []
