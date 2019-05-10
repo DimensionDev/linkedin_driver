@@ -44,6 +44,8 @@ import requests
 
 class Contact(Dict):
 
+    messages = []
+
     @classmethod
     def _filter(cls, drive, keyword=None):
         '''
@@ -58,7 +60,6 @@ class Contact(Dict):
     @classmethod
     def _get(cls, url, drive, only_contact=False):
 
-        messages = []
         record = {}
         record['@'] = drive.spec + cls.__name__
         record['-'] = url
@@ -165,13 +166,15 @@ class Contact(Dict):
         message_box = soup.find_all('li',{'class':'msg-s-message-list__event clearfix'})
 
         week = ''
+        time = ''
         for message in message_box:
             if message.find('time',{'class':'msg-s-message-list__time-heading'}) is not None:
-                week = message.find('time',{'class':'msg-s-message-list__time-heading'}).get_text().split('\n')
-                continue
-            time = message.find("time",class_ = "msg-s-message-group__timestamp").get_text().split('\n')
+                week = message.find('time',{'class':'msg-s-message-list__time-heading'}).get_text().split('\n')[1].strip()
+            ltime = message.find_all('time',{'class':'msg-s-message-group__timestamp'})
+            if len(ltime) > 0:
+                time = ltime[0].get_text().split('\n')[1].strip()
             context = message.find('p').get_text()
-            self.messages.append(Message({'week': week,'time': time,'text': context}))
+            self.messages.append(Message({'week': week,'time':time,'text': context}))
 
 class Post(Dict):
 
