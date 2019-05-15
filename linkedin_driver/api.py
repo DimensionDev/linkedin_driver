@@ -8,7 +8,6 @@ from linkedin_driver.utils import (
     open_interest,
     text_or_default_accomp,
     open_accomplishments,
-    open_more,
     flatten_list,
     one_or_default,
     text_or_default,
@@ -44,6 +43,8 @@ import requests
 
 
 class Contact(Dict):
+
+    messages = []
 
     @classmethod
     def _filter(cls, drive, keyword=None):
@@ -92,7 +93,7 @@ class Contact(Dict):
         record.update({'recommendations':recommendations_data})
 
         # <<EXPAND-TABS>>
-        open_more(drive)
+       # open_more(drive)
 
         # PERSONAL-INFO
         soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
@@ -139,6 +140,41 @@ class Contact(Dict):
             time.sleep(1)
             self.drive.execute_script('arguments[0].click();', button1)
 
+    def get_message(self):
+        friend = self['contact']['profile_url'][0]
+
+        self.drive.get(friend)
+        get_friend = self.drive.find_element_by_class_name('pv-s-profile-actions__label')
+        ActionChains(self.drive).move_to_element(get_friend).perform()
+        import time
+        time.sleep(1)
+
+        self.drive.execute_script('arguments[0].click();', get_friend)
+
+        time.sleep(5)
+        temp = None
+        while True:
+            message_list = self.drive.find_elements_by_class_name('msg-s-message-list__event')
+            last_item = message_list[0]
+            if temp == last_item:
+                break
+            temp = last_item
+            self.drive.execute_script("arguments[0].scrollIntoView(true);", last_item)
+            time.sleep(5)
+
+        soup = bs4.BeautifulSoup(self.drive.page_source, 'html.parser')
+        message_box = soup.find_all('li',{'class':'msg-s-message-list__event clearfix'})
+
+        week = ''
+        time = ''
+        for message in message_box:
+            if message.find('time',{'class':'msg-s-message-list__time-heading'}) is not None:
+                week = message.find('time',{'class':'msg-s-message-list__time-heading'}).get_text().split('\n')[1].strip()
+            ltime = message.find_all('time',{'class':'msg-s-message-group__timestamp'})
+            if len(ltime) > 0:
+                time = ltime[0].get_text().split('\n')[1].strip()
+            context = message.find('p').get_text()
+            self.messages.append(Message({'week': week,'time':time,'text': context}))
 
 class Post(Dict):
 
