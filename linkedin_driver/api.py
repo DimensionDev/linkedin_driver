@@ -385,12 +385,63 @@ class Post(Dict):
 class Message(Dict):
 
     @classmethod
-    def _get(self):
-        raise NotImplemented
-
+    def _get(cls, url, drive=None):
+        drive.get(url)
+        # extracted data
+        record = {}
+        if drive is not None:
+            record['@'] = drive.spec + cls.__name__
+        return cls(record)
+    
     @classmethod
-    def _filter(self):
-        raise NotImplemented
+    def _filter(cls, url, drive, limit=None, close_after_execution=True):
+
+        drive.get(url)
+        
+        time.sleep(0.1)
+
+        drive.find_element_by_class_name('nav-item--mynetwork').click()
+
+        time.sleep(5)
+
+        drive.find_element_by_class_name('mn-community-summary__link').click()
+
+        time.sleep(5)
+
+        drive.find_element_by_class_name('mn-connections__search-with-filters').click()
+
+        contacts = []
+        
+        time.sleep(2)
+        
+        count = 0
+
+        while True:
+            drive.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(1)
+            nextbtn = drive.find_element_by_class_name('artdeco-pagination__button--next')
+            soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
+            total_num = int(soup.find('h3',{'class':'search-results__total'}).get_text().strip().split(" ")[1])
+            contact_list = soup.find_all('li',{'class':'search-result__occluded-item'})
+            count += len(contact_list)
+            if total_num == count:
+                break
+
+            for item in contact_list:
+                url = 'https://www.linkedin.com'+item.find_all('a',{'class':'search-result__result-link'})[0].attrs['href']
+                name = item.find('span',{'class':'actor-name'}).get_text().strip()
+                tit_loc = item.find_all('p',{'class':'search-result__truncate'})
+                title = tit_loc[0].get_text().strip()
+                location = tit_loc[1].get_text().strip()
+                print(name)
+                print(url)
+                print(title)
+                print(location)
+                contacts.append({'name':name,'url':url,'title':title,'location':location})
+           
+            drive.execute_script('arguments[0].click();',nextbtn)
+            time.sleep(1)
+            
 
     def _update(self):
         raise NotImplemented
