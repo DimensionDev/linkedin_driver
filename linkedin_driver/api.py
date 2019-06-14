@@ -40,6 +40,7 @@ import base64
 import datetime
 import metawiki
 import requests
+import random
 
 
 class Contact(Dict):
@@ -118,13 +119,13 @@ class Contact(Dict):
         return obj
 
     @classmethod
-    def _filter(cls, drive, limit=None, close_after_execution=True):
+    def _filter(cls, drive, limit=None, close_after_execution=True, delay_seconds=20, delay_variance=2):
         drive.get('https://linkedin.com')
         time.sleep(0.1)
         drive.find_element_by_class_name('nav-item--mynetwork').click()
-        time.sleep(5)
+        time.sleep(delay_seconds+delay_variance*random.random())
         drive.find_element_by_class_name('mn-community-summary__link').click()
-        time.sleep(5)
+        time.sleep(delay_seconds+delay_variance*random.random())
 
         temp = None
         while True:
@@ -134,11 +135,12 @@ class Contact(Dict):
                 break
             temp = last_item
             drive.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(5)
+            time.sleep(delay_seconds+delay_variance*random.random())
+
 
         soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
         contact_list = soup.find_all('li',{'class':'list-style-none'})
-            
+
         for item in contact_list:
             url = 'https://www.linkedin.com'+item.find_all('a',{'class':'mn-connection-card__link ember-view'})[0].attrs['href']
             name = item.find('span',{'class':'mn-connection-card__name'}).get_text().strip()
