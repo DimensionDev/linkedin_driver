@@ -117,6 +117,41 @@ class Contact(Dict):
         obj.drive = drive
         return obj
 
+    @classmethod
+    def _filter(cls, drive, limit=None, close_after_execution=True):
+        drive.get('https://linkedin.com')
+        time.sleep(0.1)
+        drive.find_element_by_class_name('nav-item--mynetwork').click()
+        time.sleep(5)
+        drive.find_element_by_class_name('mn-community-summary__link').click()
+        time.sleep(5)
+
+        temp = None
+        while True:
+            message_list = drive.find_elements_by_class_name('list-style-none')
+            last_item = message_list[-1]
+            if temp == last_item:
+                break
+            temp = last_item
+            drive.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(5)
+
+        soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
+        contact_list = soup.find_all('li',{'class':'list-style-none'})
+            
+        for item in contact_list:
+            url = 'https://www.linkedin.com'+item.find_all('a',{'class':'mn-connection-card__link ember-view'})[0].attrs['href']
+            name = item.find('span',{'class':'mn-connection-card__name'}).get_text().strip()
+            occupation = item.find('span',{'class':'mn-connection-card__occupation'}).get_text().strip()
+            connect_time = item.find('time',{'class':'time-badge'}).get_text().strip()
+
+            yield cls({
+                '@': drive.spec + cls.__name__,
+                '-': url,
+                'name': name,
+                'occupation': occupation,
+                'connect_time': connect_time})
+
 
     def send_message(self, text):
        friend = self['contact']['profile_url'][0]
