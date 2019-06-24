@@ -154,7 +154,6 @@ class Contact(Dict):
                 'occupation': occupation,
                 'connect_time': connect_time})
 
-
     def send_message(self, text):
        friend = self['contact']['profile_url'][0]
 
@@ -422,12 +421,13 @@ class Post(Dict):
 class Message(Dict):
 
     @classmethod
-    def _get(self):
-        raise NotImplemented
-
-    @classmethod
-    def _filter(self):
-        raise NotImplemented
+    def _get(cls, url, drive=None):
+        drive.get(url)
+        # extracted data
+        record = {}
+        if drive is not None:
+            record['@'] = drive.spec + cls.__name__
+        return cls(record)
 
     def _update(self):
         raise NotImplemented
