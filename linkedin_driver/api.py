@@ -40,6 +40,7 @@ import base64
 import datetime
 import metawiki
 import requests
+import random
 
 
 class Contact(Dict):
@@ -118,47 +119,40 @@ class Contact(Dict):
         return obj
 
     @classmethod
-    def _filter(cls, drive, limit=None, close_after_execution=True):
+    def _filter(cls, drive, limit=None, close_after_execution=True, delay_seconds=20, delay_variance=2):
         drive.get('https://linkedin.com')
         time.sleep(0.1)
         drive.find_element_by_class_name('nav-item--mynetwork').click()
-        time.sleep(5)
+        time.sleep(delay_seconds+delay_variance*random.random())
         drive.find_element_by_class_name('mn-community-summary__link').click()
-        time.sleep(5)
-        # drive.find_element_by_class_name('mn-connections__search-with-filters').click()
-        # time.sleep(2)
-        count = 0
+        time.sleep(delay_seconds+delay_variance*random.random())
 
+        temp = None
         while True:
-
-            drive.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(1)
-            nextbtn = drive.find_element_by_class_name('artdeco-pagination__button--next')
-            soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
-            total_num = int(soup.find('h3',{'class':'search-results__total'}).get_text().strip().split(" ")[1])
-            contact_list = soup.find_all('li',{'class':'search-result__occluded-item'})
-            count += len(contact_list)
-
-            if total_num == count:
+            message_list = drive.find_elements_by_class_name('list-style-none')
+            last_item = message_list[-1]
+            if temp == last_item:
                 break
+            temp = last_item
+            drive.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(delay_seconds+delay_variance*random.random())
 
-            for item in contact_list:
-                url = 'https://www.linkedin.com'+item.find_all('a',{'class':'search-result__result-link'})[0].attrs['href']
-                name = item.find('span',{'class':'actor-name'}).get_text().strip()
-                tit_loc = item.find_all('p',{'class':'search-result__truncate'})
-                title = tit_loc[0].get_text().strip()
-                location = tit_loc[1].get_text().strip()
 
-                yield cls({
-                    '@': drive.spec + cls.__name__,
-                    '-': url,
-                    'name': name,
-                    'title': title,
-                    'location': location})
+        soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
+        contact_list = soup.find_all('li',{'class':'list-style-none'})
 
-            drive.execute_script('arguments[0].click();',nextbtn)
-            time.sleep(1)
+        for item in contact_list:
+            url = 'https://www.linkedin.com'+item.find_all('a',{'class':'mn-connection-card__link ember-view'})[0].attrs['href']
+            name = item.find('span',{'class':'mn-connection-card__name'}).get_text().strip()
+            occupation = item.find('span',{'class':'mn-connection-card__occupation'}).get_text().strip()
+            connect_time = item.find('time',{'class':'time-badge'}).get_text().strip()
 
+            yield cls({
+                '@': drive.spec + cls.__name__,
+                '-': url,
+                'name': name,
+                'occupation': occupation,
+                'connect_time': connect_time})
 
     def send_message(self, text):
        friend = self['contact']['profile_url'][0]
