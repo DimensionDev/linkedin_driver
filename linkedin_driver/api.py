@@ -21,7 +21,8 @@ from linkedin_driver.utils import (
     experiences,
     skills,
     recommendations,
-    get_people_viewed
+    get_people_viewed,
+    open_more
 )
 
 from linkedin_driver.utils import (
@@ -41,22 +42,11 @@ import datetime
 import metawiki
 import requests
 import random
-
+import tqdm
 
 class Contact(Dict):
 
     messages = []
-
-    @classmethod
-    def _filter(cls, drive, keyword=None):
-        '''
-        Returns:
-            Iterator.
-        '''
-        for item in filter_contacts(drive, keyword):
-            item['@'] = drive.spec + cls.__name__
-            yield(cls(item))
-
 
     @classmethod
     def _get(cls, url, drive, only_contact=False):
@@ -94,7 +84,7 @@ class Contact(Dict):
         record.update({'recommendations':recommendations_data})
 
         # <<EXPAND-TABS>>
-       # open_more(drive)
+        open_more(drive)
 
         # PERSONAL-INFO
         soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
@@ -119,40 +109,70 @@ class Contact(Dict):
         return obj
 
     @classmethod
-    def _filter(cls, drive, limit=None, close_after_execution=True, delay_seconds=20, delay_variance=2):
-        drive.get('https://linkedin.com')
-        time.sleep(0.1)
-        drive.find_element_by_class_name('nav-item--mynetwork').click()
-        time.sleep(delay_seconds+delay_variance*random.random())
-        drive.find_element_by_class_name('mn-community-summary__link').click()
-        time.sleep(delay_seconds+delay_variance*random.random())
+    def _xfilter(cls, drive, keyword=None):
+        '''
+        Returns:
+            Iterator that goes through linked-in search in general.
 
-        temp = None
-        while True:
-            message_list = drive.find_elements_by_class_name('list-style-none')
-            last_item = message_list[-1]
-            if temp == last_item:
-                break
-            temp = last_item
-            drive.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        TBD: Later to merge with ._filter, which now only returns personal contacts.
+        '''
+        for item in filter_contacts(drive, keyword):
+            item['@'] = drive.spec + cls.__name__
+            yield(cls(item))
+
+    @classmethod
+    def _filter(cls, drive, limit=None, close_after_execution=True, delay_seconds=20, delay_variance=2):
+
+        print("Please, wait for a few minutes to initialize...")
+
+        existing = set()
+
+        with tqdm.tqdm() as pbar:
+
+            drive.get('https://linkedin.com')
+            time.sleep(0.1)
+            drive.find_element_by_class_name('nav-item--mynetwork').click()
+            time.sleep(delay_seconds+delay_variance*random.random())
+            drive.find_element_by_class_name('mn-community-summary__link').click()
             time.sleep(delay_seconds+delay_variance*random.random())
 
+            temp = None
 
-        soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
-        contact_list = soup.find_all('li',{'class':'list-style-none'})
+            while True:
+                message_list = drive.find_elements_by_class_name('list-style-none')
+                last_item = message_list[-1]
+                if temp == last_item:
+                    break
+                temp = last_item
+                drive.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(delay_seconds+delay_variance*random.random())
 
-        for item in contact_list:
-            url = 'https://www.linkedin.com'+item.find_all('a',{'class':'mn-connection-card__link ember-view'})[0].attrs['href']
-            name = item.find('span',{'class':'mn-connection-card__name'}).get_text().strip()
-            occupation = item.find('span',{'class':'mn-connection-card__occupation'}).get_text().strip()
-            connect_time = item.find('time',{'class':'time-badge'}).get_text().strip()
 
-            yield cls({
-                '@': drive.spec + cls.__name__,
-                '-': url,
-                'name': name,
-                'occupation': occupation,
-                'connect_time': connect_time})
+                # TBD: Later make the soup parse only new html loaded.
+                soup = bs4.BeautifulSoup(drive.page_source, 'html.parser')
+                contact_list = soup.find_all('li',{'class':'list-style-none'})
+
+                for item in contact_list:
+                    url = 'https://www.linkedin.com'+item.find_all('a',{'class':'mn-connection-card__link ember-view'})[0].attrs['href']
+
+                    # Because we're now parsing the whole page after each reload.
+                    if url in existing:
+                        continue
+                    else:
+                        existing.add(url)
+
+                    name = item.find('span',{'class':'mn-connection-card__name'}).get_text().strip()
+                    occupation = item.find('span',{'class':'mn-connection-card__occupation'}).get_text().strip()
+                    connect_time = item.find('time',{'class':'time-badge'}).get_text().strip()
+
+                    pbar.update(1)
+
+                    yield cls({
+                        '@': drive.spec + cls.__name__,
+                        '-': url,
+                        'name': name,
+                        'occupation': occupation,
+                        'connect_time': connect_time})
 
     def send_message(self, text):
        friend = self['contact']['profile_url'][0]

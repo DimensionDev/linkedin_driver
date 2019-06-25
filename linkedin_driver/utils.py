@@ -196,7 +196,7 @@ def open_contact(driver, contact_url):
     contact = {"profile_url": profile_url, "websites": websites,"twitter":twitter_url,"phone":ph,"address":address_content
                ,"email":email_address,"IM":IM_cont,"birthday":birth}
 
-    close = driver.find_element_by_class_name('artdeco-dismiss')
+    close = driver.find_element_by_class_name('artdeco-modal-overlay--is-top-layer')
     ActionChains(driver).move_to_element(close).click().perform()
 
     #
@@ -299,7 +299,7 @@ def open_interest(driver, contact_url):
    # classification = ['companies','groups','schools']
     result = zip(classification,interests)
 
-    close = driver.find_element_by_class_name('artdeco-dismiss')
+    close = driver.find_element_by_class_name('artdeco-modal-overlay--is-top-layer')
     close.click()
 
     return list(result)
@@ -378,14 +378,14 @@ def open_accomplishments(driver):
     return list(result)
 
 
-#def open_more(driver):
-#    eles= driver.find_elements_by_css_selector('.lt-line-clamp__more')
-#    for ele in eles:
-#        try:
-#            driver.execute_script('arguments[0].disabled = true;',ele)
-#            driver.execute_script('arguments[0].click();',ele)
-#        except:
-#            pass
+def open_more(driver):
+   eles= driver.find_elements_by_css_selector('.lt-line-clamp__more')
+   for ele in eles:
+       try:
+           driver.execute_script('arguments[0].disabled = true;',ele)
+           driver.execute_script('arguments[0].click();',ele)
+       except:
+           pass
 
 
 
@@ -560,11 +560,14 @@ def personal_info(soup):
             image_url = image_div['src']
         else:
             image_div = one_or_default(top_card, '.pv-top-card-section__photo')
-            style_string = image_div['style']
-            pattern = re.compile('background-image: url\("(.*?)"')
-            matches = pattern.match(style_string)
-            if matches:
-                image_url = matches.groups()[0]
+            try:
+                style_string = image_div['style']
+                pattern = re.compile('background-image: url\("(.*?)"')
+                matches = pattern.match(style_string)
+                if matches:
+                    image_url = matches.groups()[0]
+            except:
+                image_url = None
 
         personal_info['image'] = image_url
 
