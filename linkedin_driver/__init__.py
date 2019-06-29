@@ -59,9 +59,9 @@ def _login(
         if soup.find('div', {'id': 'error-for-password'}):
             raise Exception("Incorrect password. Try to relogin.")
 
-        if soup.find('button', {'class': 'artdeco-dismiss'}):
+        if soup.find('div', {'class': 'artdeco-modal-overlay--is-top-layer'}):
             'Removing the notification about cookies.'
-            driver.find_element_by_class_name('artdeco-dismiss').click()
+            driver.find_element_by_class_name('artdeco-modal-overlay--is-top-layer').click()
 
     soup = bs4.BeautifulSoup(driver.page_source, 'html.parser')
 
